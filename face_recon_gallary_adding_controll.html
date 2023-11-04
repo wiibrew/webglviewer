@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - decal splatter</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	
+		<!-- Bootstrap CSS -->
+		<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+				integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"> -->
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+		
+			<!-- <link rel="stylesheet" href="./templates/style_index.css"> -->
+		<!-- <link type="text/css" rel="stylesheet" href="main.css"> -->
+	</head>
+    <style>
+        /* Style the slider */
+        .slider-container {
+            position: absolute; /* Position it at the bottom */
+            bottom: 10px;
+            left: 10px;
+            z-index: 10;
+        }
+
+        .slider-label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /*#lightIntensityControl {*/
+        /*    width: 200px;*/
+        /*}*/
+        /*#hemisphereLightIntensity {*/
+        /*    width: 200px;*/
+        /*}*/
+
+        .control-panel {
+            position: absolute;
+            top: 30px;
+            right: 10px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            z-index: 1000;
+        }
+
+        .control-panel h3 {
+            margin-top: 0;
+        }
+
+        .control {
+            margin-bottom: 10px;
+        }
+
+        .control label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .control input[type=color] {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .control input[type=range] {
+            width: calc(100% - 10px); /* Adjust width to fit padding and border */
+            cursor: pointer;
+        }
+
+    </style>
+    
+
+	<style>
+		body{
+			/* background-image: url("background1.jpeg"); */
+			/* background-color: white; */
+			background-color: white;
+		}
+
+
+	  .showimage{
+        width:200px;
+        height:200px;
+        margin-top: 0.5cm;
+        margin-bottom: 0.5cm;
+        vertical-align:middle;
+      }
+
+      .showimage img{
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+      .col-md-3{
+        display:table-cell;      
+        vertical-align:middle; 
+        text-align:center; 
+      }
+
+	  progress{
+		width: 250px;
+		height: 25px;
+		/* color:#f00;
+		background:#EFEFF4; */
+	}
+
+	</style>
+	<body>
+		<div class="container-fluid vh-100">
+            <!-- 第一行 标题 -->
+			<div class="row w-100">
+				<div class="col-md-12">
+					<h1 class="text-center"> 摩尔线程之3D人脸重建</h1>
+				</div>
+			</div>
+
+            <!-- 第二行 重建相关 -->
+			<div class="row h-75">
+				
+                 <!-- 中间左边第一列 选择文件 -->
+                <div class="col-md-3" style="color:rgb(233, 12, 12)">
+                    
+                    <!-- 请选择需要重建的人脸！！
+                    
+                    <input type="file" name="photo"  class="form-control" id="file" aria-describedby="inputGroupFileAddon04" aria-label="Upload" accept=".jpg,.png,.jpeg,.PNG, .JPG,.JPEG"> -->
+                        
+                    <div class="showimage" id="image" style="width:400px;height:400px; float:center;">
+                        <!-- <img id="fileimg" src="__PUBLIC__/images/tu.png" alt="image"/> -->
+                        <img id="fileimg" src="/static/images/21650.jpg" alt="image"/>
+                    </div>
+                    
+                    
+
+                    <!-- <div class="btn-group-vertical" role="group0" aria-label="Basic mixed styles example">
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+                        <label id="next"  class="btn btn-outline-primary" for="btnradio2">下一个</label>
+                    </div> -->
+
+                    <div class="btn-group-vertical" role="group0" aria-label="Basic mixed styles example"> 
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
+                        <label id="next"  class="btn btn-outline-primary" for="btnradio1">下一个</label>
+
+                        <div id="showEnd" style="color:rgb(233, 12, 12)">
+                            <!-- 这是最后一张贴图啦！！！ -->
+                        </div>
+                
+                    </div>
+
+                    <!-- <div style="margin-bottom:20px;margin-top:20px;">
+                        
+                        <progress id="progress" value="0" max="100"></progress>
+                    </div> -->
+
+
+                    <div class="btn-group-vertical" role="group0" aria-label="Basic mixed styles example">
+                        <input type="radio" class="btn-check" name="btnradio" id="hairbtn" autocomplete="off" checked>
+                        <label id="hairlabel"  class="btn btn-outline-primary" for="hairbtn">换个发型</label>
+                        
+                        <div id="showEndhair" style="color:rgb(233, 12, 12)">
+                            <!-- 这是最后一张贴图啦！！！ -->
+                        </div>
+
+
+                    </div>
+
+                    <div class="slider-container">
+
+
+                    </div>
+
+                    <!-- Sliders for controlling material properties -->
+                    <div id="materialControls">
+                        <div id="lightIntensityDiv">
+                          <label for="lightIntensityControl" class="slider-label">Light Intensity:</label>
+                          <input type="range" id="lightIntensityControl" min="0" max="2" step="0.01" value="1">
+                        </div>
+                        <div id="hemisphereLightIntensityDiv">
+                          <label for="hemisphereLightIntensity" class="slider-label">Hemisphere Light Intensity:</label>
+                          <input type="range" id="hemisphereLightIntensity" class="slider" min="0" max="2" step="0.01" value="1">
+                        </div>
+                      <div id="normalIntensityControl">
+                        <label for="normalIntensity">Normal Intensity:</label>
+                        <input id="normalIntensity" type="range" min="0" max="3" step="0.01" value="1">
+                      </div>
+
+                      <div id="specularIntensityControl">
+                        <label for="specularIntensity">Specular Intensity:</label>
+                        <input id="specularIntensity" type="range" min="0" max="2" step="0.01" value="0.5">
+                      </div>
+
+
+                    </div>
+
+
+                    <div id="controlPanel" class="control-panel">
+                        <!-- UI for Ground Configuration -->
+                        <h3>Scene Controls</h3>
+                        <div class="control">
+                            <label for="groundColor">Ground Color:</label>
+                            <input type="color" id="groundColor" value="#ffffff">
+                        </div>
+
+                        <!-- UI for Skydome Configuration -->
+                        <div class="control">
+                            <label for="skyTopColor">Sky Top Color:</label>
+                            <input type="color" id="skyTopColor" value="#0077ff">
+                        </div>
+                        <div class="control">
+                            <label for="skyBottomColor">Sky Bottom Color:</label>
+                            <input type="color" id="skyBottomColor" value="#ffffff">
+                        </div>
+                        <div class="control">
+                            <label for="skyOffset">Sky Offset:</label>
+                            <input type="range" id="skyOffset" min="0" max="100" value="33">
+                        </div>
+                        <div class="control">
+                            <label for="skyExponent">Sky Exponent:</label>
+                            <input type="range" id="skyExponent" min="0" max="1" step="0.01" value="0.6">
+                        </div>
+                    </div>
+
+
+
+
+                    
+                </div>
+
+                <!-- 中间第二列 重建结果 -->
+                <div class="col-md-7">                    
+                    <div id="container" class="w-100 h-100"></div> 
+                </div>
+
+                <!-- 中间第三列 光头结果和animation -->
+				<!-- <div class="col-md-2"> -->
+					<!-- <div class="showimage" id="imagehair" style="width:390px;height:280px; float:center;"> -->
+						<!-- <img id="fileimg" src="__PUBLIC__/images/tu.png" alt="image"/> -->
+						<!-- <img id="fileimg" src="/static/images/21650.jpg" alt="image"/> -->
+					<!-- </div> -->
+					
+					<!-- <video autoplay="true" id="video" class="w-100 h-100"></video> -->
+				<!-- </div> -->
+			</div>
+			
+            <!-- 第三行 联系方式和注意事项 -->
+
+		</div>
+
+        <script type="x-shader/x-vertex" id="vertexShader">
+
+            varying vec3 vWorldPosition;
+        
+            void main() {
+        
+                vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+                vWorldPosition = worldPosition.xyz;
+        
+                gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+        
+            }
+        
+        </script>
+
+        <script type="x-shader/x-fragment" id="fragmentShader">
+
+            uniform vec3 topColor;
+            uniform vec3 bottomColor;
+            uniform float offset;
+            uniform float exponent;
+            
+            varying vec3 vWorldPosition;
+            
+            void main() {
+            
+                float h = normalize( vWorldPosition + offset ).y;
+                gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
+            
+            }
+            
+            </script>
+
+		<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "/static/three.module.js",
+					"three/addons/": "/static/jsm/",
+					"three/src/extras/":"/static/src/extras/"
+				}
+			}
+		</script>
+		<script src="http://cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+		<script type="module">
+
+			import * as THREE from 'three';
+
+			import Stats from 'three/addons/libs/stats.module.js';
+			import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+
+			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+			import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+			import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
+			import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+			import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+            import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+            import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
+            import { PMREMGenerator } from 'three/src/extras/PMREMGenerator.js';
+
+
+
+			// Mediapipe
+			import vision from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0';
+			const { FaceLandmarker, FilesetResolver } = vision;
+
+            const fileInput = document.getElementById('file');
+			const container = document.getElementById( 'container' );
+
+			const d = new Date();
+			let session_id = d.toLocaleDateString().replaceAll('/', '-') + '-' +d.toLocaleTimeString().replaceAll(':', '-').replaceAll(' ', '-')
+
+
+			let arkitParam = [];
+			let renderer, scene, camera, stats, controls;
+			let mesh;
+			let raycaster;
+			let line;
+			let gui;
+            let hemiLigValue, dirLightValue;
+            let FaceSkinMaterial;
+			
+            const mouse = new THREE.Vector2();
+            const textureLoader = new THREE.TextureLoader();
+			const decals = [];
+			let mouseHelper;
+			const position = new THREE.Vector3();
+			const size = new THREE.Vector3( 10, 10, 10 );
+
+            const blendshapesMap = {
+				'_neutral': '',
+				'browDownLeft': 'A02_Brow_Down_Left',
+				'browDownRight': 'A03_Brow_Down_Right',
+				'browInnerUp': 'A01_Brow_Inner_Up',
+				'browOuterUpLeft': 'A04_Brow_Outer_Up_Left',
+				'browOuterUpRight': 'A05_Brow_Outer_Up_Right',
+				'cheekPuff': 'A20_Cheek_Puff',
+				'cheekSquintLeft': 'A21_Cheek_Squint_Left',
+				'cheekSquintRight': 'A22_Cheek_Squint_Right',
+				'eyeBlinkLeft': 'A14_Eye_Blink_Left',
+				'eyeBlinkRight': 'A15_Eye_Blink_Right',
+				'eyeLookDownLeft': 'A08_Eye_Look_Down_Left',
+				'eyeLookDownRight': 'A09_Eye_Look_Down_Right',
+				'eyeLookInLeft': 'A11_Eye_Look_In_Left',
+				'eyeLookInRight': 'A12_Eye_Look_In_Right',
+				'eyeLookOutLeft': 'A10_Eye_Look_Out_Left',
+				'eyeLookOutRight': 'A13_Eye_Look_Out_Right',
+				'eyeLookUpLeft': 'A06_Eye_Look_Up_Left',
+				'eyeLookUpRight': 'A07_Eye_Look_Up_Right',
+				'eyeSquintLeft': 'A16_Eye_Squint_Left',
+				'eyeSquintRight': 'A17_Eye_Squint_Right',
+				'eyeWideLeft': 'A18_Eye_Wide_Left',
+				'eyeWideRight': 'A19_Eye_Wide_Right',
+				'jawForward': 'A26_Jaw_Forward',
+				'jawLeft': 'A27_Jaw_Left',
+				'jawOpen': 'A25_Jaw_Open',
+				'jawRight': 'A28_Jaw_Right',
+				'mouthClose': 'A37_Mouth_Close',
+				'mouthDimpleLeft': 'A42_Mouth_Dimple_Left',
+				'mouthDimpleRight': 'A43_Mouth_Dimple_Right',
+				'mouthFrownLeft': 'A40_Mouth_Frown_Left',
+				'mouthFrownRight': 'A41_Mouth_Frown_Right',
+				'mouthFunnel': 'A29_Mouth_Funnel',
+				'mouthLeft': 'A31_Mouth_Left',
+				'mouthLowerDownLeft': 'A46_Mouth_Lower_Down_Left',
+				'mouthLowerDownRight': 'A47_Mouth_Lower_Down_Right',
+				'mouthPressLeft': 'A48_Mouth_Press_Left',
+				'mouthPressRight': 'A49_Mouth_Press_Right',
+				'mouthPucker': 'A30_Mouth_Pucker',
+				'mouthRight': 'A32_Mouth_Right',
+				'mouthRollLower': 'A34_Mouth_Roll_Lower',
+				'mouthRollUpper': 'A33_Mouth_Roll_Upper',
+				'mouthShrugLower': 'A36_Mouth_Shrug_Lower',
+				'mouthShrugUpper': 'A35_Mouth_Shrug_Upper',
+				'mouthSmileLeft': 'A38_Mouth_Smile_Left',
+				'mouthSmileRight': 'A39_Mouth_Smile_Right',
+				'mouthStretchLeft': 'A50_Mouth_Stretch_Left',
+				'mouthStretchRight': 'A51_Mouth_Stretch_Right',
+				'mouthUpperUpLeft': 'A44_Mouth_Upper_Up_Left',
+				'mouthUpperUpRight': 'A45_Mouth_Upper_Up_Right',
+				'noseSneerLeft': 'A23_Nose_Sneer_Left',
+				'noseSneerRight': 'A24_Nose_Sneer_Right',
+				// '': 'tongueOut': 'A52_Tongue_Out'
+			};
+
+
+
+
+			// MediaPipe
+			// const video = document.getElementById( 'video' );
+			// const filesetResolver = await FilesetResolver.forVisionTasks(
+			// 	'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm'
+			// );
+			// const faceLandmarker = await FaceLandmarker.createFromOptions( filesetResolver, {
+			// 	baseOptions: {
+			// 		modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+			// 		delegate: 'GPU'
+			// 	},
+			// 	outputFaceBlendshapes: true,
+			// 	outputFacialTransformationMatrixes: true,
+			// 	runningMode: 'VIDEO',
+			// 	numFaces: 1
+			// });
+			// if ( navigator.mediaDevices && navigator.mediaDevices.getUserMedia ) {
+			// 	navigator.mediaDevices.getUserMedia( { video: { facingMode: 'user' } } )
+			// 		.then( function ( stream ) {
+
+			// 			video.srcObject = stream;
+			// 			video.play();
+			// 			console.log( 'Able to access the camera/webcam.');
+
+			// 		} )
+			// 		.catch( function ( error ) {
+
+			// 			console.error( 'Unable to access the camera/webcam.', error );
+			// 		} );
+
+			// }
+
+			init();
+			animate();
+            
+			function init() {
+
+                // container  前面已经定义
+
+                // camera
+                camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 5000 );
+				camera.position.set( 0, 0, 10 );
+
+                //scene
+                scene = new THREE.Scene();
+				scene.background = new THREE.Color().setHSL( 0.6, 0, 1 );
+				scene.fog = new THREE.Fog( scene.background, 1, 5000 );
+
+                // Lights
+
+                hemiLigValue = 1.5;
+                const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, hemiLigValue );
+				hemiLight.color.setHSL( 0.6, 1, 0.6 );
+				hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+				hemiLight.position.set( 0, 0, 0 );   //( 0, 50, 0 );
+				scene.add( hemiLight );
+
+				const hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
+                hemiLightHelper.visible = false;
+                let spotLight
+				scene.add( hemiLightHelper );
+
+				//
+                dirLightValue = 0.5;
+				const dirLight = new THREE.DirectionalLight( 0xffffff, dirLightValue );
+				dirLight.color.setHSL( 0.1, 1, 0.95 );
+				dirLight.position.set( - 1, 1.75, 1 );
+				dirLight.position.multiplyScalar( 30 );
+				
+
+				dirLight.castShadow = true;
+
+				dirLight.shadow.mapSize.width = 2048;
+				dirLight.shadow.mapSize.height = 2048;
+
+				const d = 50;
+
+				dirLight.shadow.camera.left = - d;
+				dirLight.shadow.camera.right = d;
+				dirLight.shadow.camera.top = d;
+				dirLight.shadow.camera.bottom = - d;
+
+                dirLight.shadow.camera.near = 35;
+				dirLight.shadow.camera.far = 350;
+				dirLight.shadow.bias = - 0.003;
+                scene.add( dirLight );
+                //add the direct light controll slider
+                const lightIntensityControl = document.getElementById('lightIntensityControl');
+
+                lightIntensityControl.addEventListener('input', function (event) {
+                    const value = parseFloat(event.target.value);
+                    dirLight.intensity = value;
+                });
+
+                const hemisphereLightIntensityControl = document.getElementById('hemisphereLightIntensity');
+                hemisphereLightIntensityControl.addEventListener('input', function (event) {
+                    const value = parseFloat(event.target.value);
+                    hemiLight.intensity = value;
+                });
+
+				const dirLightHelper = new THREE.DirectionalLightHelper( dirLight, 10 );
+                dirLightHelper.visible = false;
+				scene.add( dirLightHelper );
+
+                // Ground
+				const groundGeo = new THREE.PlaneGeometry( 10000, 10000 );
+				const groundMat = new THREE.MeshLambertMaterial( { color: 0xffffff } );
+				groundMat.color.setHSL( 0.0, 0.07, 0.33 );
+
+				const ground = new THREE.Mesh( groundGeo, groundMat );
+				ground.position.y = - 33;
+				ground.rotation.x = - Math.PI / 2;
+				ground.receiveShadow = true;
+				//scene.add( ground );
+                // console.log(scene)
+
+                // skydome
+                const vertexShader = document.getElementById( 'vertexShader' ).textContent;
+				const fragmentShader = document.getElementById( 'fragmentShader' ).textContent;
+				const uniforms = {
+					'topColor': { value: new THREE.Color( 0x0077ff ) },
+					'bottomColor': { value: new THREE.Color( 0xc19595 ) },
+					'offset': { value: 33 },
+					'exponent': { value: 0.6 }
+				};
+				uniforms[ 'topColor' ].value.copy( hemiLight.color );
+
+				scene.fog.color.copy( uniforms[ 'bottomColor' ].value );
+
+				const skyGeo = new THREE.SphereGeometry( 4000, 32, 15 );
+				const skyMat = new THREE.ShaderMaterial( {
+					uniforms: uniforms,
+					vertexShader: vertexShader,
+					fragmentShader: fragmentShader,
+					side: THREE.BackSide
+				} );
+
+				const sky = new THREE.Mesh( skyGeo, skyMat );
+				//scene.add( sky );
+
+                // Event listener for ground color change
+                const groundColorControl = document.getElementById('groundColor');
+                    groundColorControl.addEventListener('input', function(event) {
+                    const colorValue = event.target.value;
+                    groundMat.color = new THREE.Color(colorValue);
+                    groundMat.color.setHSL(groundMat.color.getHSL().h, 1, 0.75); // Maintain the HSL but update color
+                });
+
+                // Event listener for sky top color change
+                const skyTopColorControl = document.getElementById('skyTopColor');
+                    skyTopColorControl.addEventListener('input', function(event) {
+                    const colorValue = event.target.value;
+                    uniforms['topColor'].value.set(colorValue);
+                });
+
+                // Event listener for sky bottom color change
+                const skyBottomColorControl = document.getElementById('skyBottomColor');
+                    skyBottomColorControl.addEventListener('input', function(event) {
+                    const colorValue = event.target.value;
+                    uniforms['bottomColor'].value.set(colorValue);
+                    scene.fog.color.set(colorValue); // Update the fog color too if needed
+                });
+
+                // Event listener for sky offset change
+                const skyOffsetControl = document.getElementById('skyOffset');
+                    skyOffsetControl.addEventListener('input', function(event) {
+                    const offsetValue = parseFloat(event.target.value);
+                    uniforms['offset'].value = offsetValue;
+                });
+
+                // Event listener for sky exponent change
+                const skyExponentControl = document.getElementById('skyExponent');
+                    skyExponentControl.addEventListener('input', function(event) {
+                    const exponentValue = parseFloat(event.target.value);
+                    uniforms['exponent'].value = exponentValue;
+                });
+
+
+
+                
+                // Render
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				// renderer.setSize( window.innerWidth, window.innerHeight );
+                renderer.setSize( container.clientWidth, container.clientHeight );
+				container.appendChild( renderer.domElement );
+				renderer.shadowMap.enabled = true;
+
+
+                // PMREM Generator for HDR environment mapping
+                const pmremGenerator = new PMREMGenerator(renderer);
+                pmremGenerator.compileEquirectangularShader();
+                // HDR environment map
+                const rgbeLoader = new RGBELoader();
+                rgbeLoader.load('/static/meadow_2_4k.hdr', function (texture) {
+                  texture.mapping = THREE.EquirectangularReflectionMapping;
+
+                  // Generate the environment map
+                  const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+
+                  // Set environment and dispose of the generator and texture
+                  scene.environment = envMap;
+                  scene.background = envMap;
+
+
+                  texture.dispose();
+                  pmremGenerator.dispose();
+                  // Add your objects here, for example a sphere with reflective material
+                  
+                });
+
+
+                // STATS
+				stats = new Stats();
+				container.appendChild( stats.dom );
+
+
+				const params = {
+					toggleHemisphereLight: function () {
+
+						hemiLight.visible = ! hemiLight.visible;
+						//hemiLightHelper.visible = ! hemiLightHelper.visible;
+
+					},
+					toggleDirectionalLight: function () {
+
+						dirLight.visible = ! dirLight.visible;
+						//dirLightHelper.visible = ! dirLightHelper.visible;
+
+					}
+				};
+
+                const gui = new GUI();
+
+				gui.add( params, 'toggleHemisphereLight' ).name( 'toggle hemisphere light' );
+				gui.add( params, 'toggleDirectionalLight' ).name( 'toggle directional light' );
+				gui.open();
+
+				controls = new OrbitControls( camera, renderer.domElement );
+				controls.enableDamping = true;
+				controls.minDistance = 0.01;
+				controls.maxDistance = 200;
+				controls.minAzimuthAngle = - Math.PI / 2;
+				controls.maxAzimuthAngle = Math.PI / 2;
+				controls.maxPolarAngle = Math.PI / 1.8;
+
+				const geometry = new THREE.BufferGeometry();
+				geometry.setFromPoints( [ new THREE.Vector3(), new THREE.Vector3() ] );
+				raycaster = new THREE.Raycaster();
+				mouseHelper = new THREE.Mesh( new THREE.BoxGeometry( 1, 1, 10 ), new THREE.MeshNormalMaterial() );
+				mouseHelper.visible = false;
+				scene.add( mouseHelper );
+
+				window.addEventListener( 'resize', onWindowResize );
+				let moved = false;
+				controls.addEventListener( 'change', function () {
+					moved = true;
+				} );
+				window.addEventListener( 'pointerdown', function () {
+					moved = false;
+				} );
+                InitObjtemplate('/static/templates/2023-10-26-15-09-17');
+                // hairInit('/static/models/hair_card/Hair_S_LowPonytail_CardsMesh_Group0_LOD0.FBX');
+                hairInit('/static/models/hair_data/aligned/ponytail_hairstyle.obj');
+                // hairInit('/static/models/hair_data/aligned/braids_hairstyle.obj');
+                // hairInit('/static/models/hair_data/aligned/bun_hairstyle.obj');
+                // hairInit('/static/models/hair_data/aligned/loose_hairstyle.obj');
+                console.log('initial scene', scene)
+			}
+
+            function InitObjtemplate(filename){
+
+                // load objfiles
+                const loader = new OBJLoader();
+                const textureloader = new THREE.TextureLoader();
+
+                // load fullhead
+                loader.load(
+                    // resource URL
+                    // '/static/tmplates/test/fullhead/final_fullhead.obj',
+                    filename + '/outputs/test/fullhead/final_fullhead.obj',
+                    // called when resource is loaded
+                    function ( object ) {
+
+                        object.name = 'fullhead'
+                        object.children[0].castShadow = true;
+                        object.children[0].receiveShadow = true;
+
+                        textureloader.load(
+                            // "/static/tmplates/fullheadTexture/test_01_diffuse/stage2_uv.png",
+                            filename + '/outputs/fullheadTexture/test_01_diffuse/stage2_uv.png',
+                            // onLoad callback
+                            function ( texture ) {
+                                const material = new THREE.MeshPhongMaterial( {
+                                    // specular: 0x111111,
+                                    map: texture,
+                                    // map: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/albedo.jpg' ),
+                                    specularMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/specular.jpg' ),
+                                    // normalMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/normal.jpg' ),
+                                    // roughnessMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/roughness.jpg' ),
+                                    shininess: 3,  // 30
+                                    wireframe: false
+                                } );
+                                
+                                object.children[0].material = material
+                            },
+
+                            // onProgress callback currently not supported
+                            undefined,
+
+                            // onError callback
+                            function ( err ) {
+                                console.error( 'An error happened.' );
+                            }
+                        );
+
+                        scene.add( object );
+                    },
+                    // called when loading is in progresses
+                    function ( xhr ) {
+
+                        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+                    },
+                    // called when loading has errors
+                    function ( error ) {
+
+                        console.log( 'An error happened' );
+
+                    }
+                );
+
+                // load l_eye
+                loader.load(
+                    // resource URL
+                    // '/static/tmplates/test/eyes/L_eye.obj',
+                    filename + '/outputs/test/eyes/L_eye.obj',
+                    // called when resource is loaded
+                    function ( object ) {
+
+                        object.name = 'R_eye_obj'
+                        object.children[0].castShadow = true;
+                        object.children[0].receiveShadow = true;
+
+                        textureloader.load(
+                            "/static/Male23-FFHQUV/Eye_assets/eyeball_uv/eye_color.png",
+                            // onLoad callback
+                            function ( texture ) {
+                                const material = new THREE.MeshPhongMaterial( {
+                                    specular: 0x111111,
+                                    map: texture,
+                                    // map: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/albedo.jpg' ),
+                                    // specularMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/specular.jpg' ),
+                                    normalMap: textureLoader.load( '/static/Male23-FFHQUV/Eye_assets/eyeball_uv/eye_normal.png' ),
+                                    // roughnessMap: textureLoader.load( '/static/Male23/Male25Face/Face_Roughness.jpg' ),
+                                    shininess: 3,  // 30
+                                    wireframe: false
+                                } );
+                                
+                                object.children[0].material = material
+                            },
+
+                            // onProgress callback currently not supported
+                            undefined,
+
+                            // onError callback
+                            function ( err ) {
+                                console.error( 'An error happened.' );
+                            }
+                        );
+                        // scene.add( object );
+
+                        let fullhead_grp = scene.getObjectByName('fullhead');
+                        console.log('fullhead_grp', fullhead_grp)
+                        fullhead_grp.add(object)
+                    },
+                    // called when loading is in progresses
+                    function ( xhr ) {
+
+                        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+                    },
+                    // called when loading has errors
+                    function ( error ) {
+
+                        console.log( 'An error happened' );
+
+                    }
+                );
+
+                // load r_eye
+                loader.load(
+                    // resource URL
+                    // '/static/tmplates/test/eyes/R_eye.obj',
+                    filename + '/outputs/test/eyes/R_eye.obj',
+                    // called when resource is loaded
+                    function ( object ) {
+
+                        object.name = 'L_eye_obj'
+                        object.children[0].castShadow = true;
+                        object.children[0].receiveShadow = true;
+                        textureloader.load(
+                            "/static/Male23-FFHQUV/Eye_assets/eyeball_uv/eye_color.png",
+                            // onLoad callback
+                            function ( texture ) {
+                                const material = new THREE.MeshPhongMaterial( {
+                                    specular: 0x111111,
+                                    map: texture,
+                                    // map: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/albedo.jpg' ),
+                                    // specularMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/specular.jpg' ),
+                                    normalMap: textureLoader.load( '/static/Male23-FFHQUV/Eye_assets/eyeball_uv/eye_normal.png' ),
+                                    // roughnessMap: textureLoader.load( '/static/Male23/Male25Face/Face_Roughness.jpg' ),
+                                    shininess: 3,  // 30
+                                    wireframe: false
+                                } );
+                                
+                                object.children[0].material = material
+                            },
+
+                            // onProgress callback currently not supported
+                            undefined,
+
+                            // onError callback
+                            function ( err ) {
+                                console.error( 'An error happened.' );
+                            }
+                        );
+                        // scene.add( object );
+
+                        let fullhead_grp = scene.getObjectByName('fullhead');
+                        console.log('fullhead_grp', fullhead_grp)
+                        fullhead_grp.add(object)
+                    },
+                    // called when loading is in progresses
+                    function ( xhr ) {
+
+                        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+                    },
+                    // called when loading has errors
+                    function ( error ) {
+
+                        console.log( 'An error happened' );
+
+                    }
+                );
+
+                // load textures
+                //    console.log('scene init:', scene)      
+
+                }
+
+
+
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				// renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setSize( container.clientWidth, container.clientHeight );
+			}
+
+			const transform = new THREE.Object3D();
+			
+            function animate() {
+				requestAnimationFrame(animate);
+
+				// Animate blend shapes
+				// const model = scene.getObjectByName('fullhead');
+				// let face = null;
+				// if (model) {
+				// 	face = model.children[0];
+				// }
+				// if ( face && video.readyState >= HTMLMediaElement.HAVE_METADATA ) {
+
+				// 	const results = faceLandmarker.detectForVideo( video, Date.now() );
+					
+				// 	if ( results.facialTransformationMatrixes.length > 0 ) {
+
+				// 		const facialTransformationMatrixes = results.facialTransformationMatrixes[ 0 ].data;
+
+				// 		transform.matrix.fromArray( facialTransformationMatrixes );
+				// 		transform.matrix.decompose( transform.position, transform.quaternion, transform.scale );
+
+				// 		const object = model
+
+				// 		object.rotation.x = transform.rotation.x;
+				// 		object.rotation.y = transform.rotation.y;
+				// 		object.rotation.z = - transform.rotation.z;
+
+				// 	}
+
+				// 	if ( results.faceBlendshapes.length > 0  ) {
+
+				// 		const faceBlendshapes = results.faceBlendshapes[ 0 ].categories;
+
+				// 		for ( const blendshape of faceBlendshapes ) {
+
+				// 			const categoryName = blendshape.categoryName;
+				// 			const score = blendshape.score;
+
+				// 			const index = face.morphTargetDictionary[ blendshapesMap[  categoryName ] ];
+
+				// 			if ( index !== undefined ) {
+
+				// 				face.morphTargetInfluences[ index ] = score;
+
+				// 			}
+
+				// 		}
+
+				// 	}
+				// }
+
+
+				renderer.render(scene, camera);
+				stats.update();
+			}
+
+			function loadImg(img_path, onLoadCallback){
+				var fr = new FileReader();
+				// fr.onload = function() {
+				// 	// document.getElementById('image').getElementsByTagName('img')[0].src = fr.result;
+				// 	//widget_id.src = fr.result;
+					
+				// 	console.log(fr.result)
+				// };
+				fr.onload = onLoadCallback;
+				fr.readAsDataURL(img_path);
+				
+			};
+
+
+			function adjustCamera(object){
+				console.log("oooooobject", object)
+                const boundingBox = new THREE.Box3().setFromObject(object);
+                console.log("bbox ", boundingBox)
+                // Calculate the center and size of the bounding box
+                const center = new THREE.Vector3();
+                const size = new THREE.Vector3();
+                boundingBox.getCenter(center);
+                boundingBox.getSize(size);
+                console.log("before center is ", center, "size is ", size)
+                // Position the camera based on the center and size of the bounding box
+                const maxDim = Math.max(size.x, size.y, size.z);
+                let ExpFov = 50
+                const fov = ExpFov * (Math.PI / 180);
+                let cameraZ = Math.abs(maxDim / 4 * Math.tan(fov * 2));
+
+                // cameraZ = 200; // Add some extra space
+				cameraZ = 1*size.z
+                camera.position.set(center.x, center.y, center.z + cameraZ);
+
+                controls.target.set( center.x, center.y, center.z );
+                
+                console.log("After center ", center, "cameraZ", cameraZ, "fov:", fov)
+                // Update the camera's target to the center of the bounding box
+                camera.lookAt(center);
+        	}
+
+
+			async function sendImg2Reconstruction(imgData_base64) {		
+				const meshData = {
+					session_id: session_id,
+					imgData: imgData_base64,
+					// version: "v1",
+					
+					};
+				const response = await fetch('/process_image_for_reconstruction', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(meshData),
+				});
+
+				const result = await response.json();
+				close('response result:', result)
+				const objLoader = new OBJLoader();
+				const reconstrued_object = objLoader.parse(result.mesh.join(""))
+				reconstrued_object.name = "fullhead";
+                reconstrued_object.children[0].castShadow = true;
+                reconstrued_object.children[0].receiveShadow = true;
+
+				// Add eyes
+				const L_eye_obj = objLoader.parse(result.eyeball_L.join(""))
+				L_eye_obj.name = "L_eye_obj";
+				const R_eye_obj = objLoader.parse(result.eyeball_R.join(""))
+				R_eye_obj.name = "R_eye_obj";
+
+				// load hairMapper
+				var hairmapper = result.hairmapper
+				console.log(hairmapper)
+				document.getElementById('imagehair').getElementsByTagName('img')[0].src = hairmapper
+				
+				const loader = new THREE.TextureLoader();
+				// load a resource
+				loader.load(
+					result.texture,
+					// onLoad callback
+					function ( texture ) {
+						
+
+						// 存在三角面片的问题
+						const material = new THREE.MeshPhongMaterial( {
+							// specular: 0x111111,
+							map: texture,
+							// map: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/albedo.jpg' ),
+							specularMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/specular.jpg' ),
+							// normalMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/normal.jpg' ),
+							// roughnessMap: textureLoader.load( '/static/Male23/Male25Face/Face_Roughness.jpg' ),
+							shininess: 3,  // 30
+							wireframe: false
+						} );
+						
+
+						reconstrued_object.children[0].material = material
+						scene.add(reconstrued_object)
+
+						console.log('material', material)
+						console.log('reconstrued_object', reconstrued_object)
+					},
+
+					// onProgress callback currently not supported
+					undefined,
+
+					// onError callback
+					function ( err ) {
+						console.error( 'An error happened.' );
+					}
+				);
+
+				loader.load(
+					result.albedo_eye,
+					// onLoad callback
+					function ( texture ) {
+						// in this example we create the material when the texture is loaded
+						// const material = new THREE.MeshBasicMaterial( {
+						// 	map: texture
+						// } );
+
+                        const material = new THREE.MeshPhongMaterial( {
+							specular: 0x111111,
+							map: texture,
+							// map: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/albedo.jpg' ),
+							// specularMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/specular.jpg' ),
+							normalMap: textureLoader.load( '/static/Male23-FFHQUV/Eye_assets/eyeball_uv/eye_normal.png' ),
+							// roughnessMap: textureLoader.load( '/static/Male23/Male25Face/Face_Roughness.jpg' ),
+							shininess: 30,  // 30
+							wireframe: false
+						} );
+
+						L_eye_obj.children[0].material = material
+						R_eye_obj.children[0].material = material
+						// scene.clear()
+                        console.log('L_eye_obj', L_eye_obj)
+						console.log('R_eye_obj', R_eye_obj)
+                        console.log('scene', scene)
+                        console.log('scene children', scene.children)
+						let fullhead_grp = scene.getObjectByName('fullhead');
+						console.log('fullhead_grp', fullhead_grp)
+						fullhead_grp.add(L_eye_obj)
+						fullhead_grp.add(R_eye_obj)
+					},
+
+					// onProgress callback currently not supported
+					undefined,
+
+					// onError callback
+					function ( err ) {
+						console.error( 'An error happened.' );
+					}
+				);
+
+				//Add hair
+				const obj_loader = new OBJLoader();
+
+				// load a resource
+				obj_loader.load(
+					// resource URL
+					// '/static/hair/DB566.obj',
+					// '/static/hair/cc_hair/cc_hair_aligned.obj', cc_hair_dele
+					'/static/hair/cc_hair/cc_hair_aligned4.obj',
+					//'/static/hair/cc_hair/cc_hair2.obj',
+					
+					
+					function ( object ) {
+						object.name = 'hair';
+						
+						loader.load(
+							'/static/hair/cc_hair/Hair_diffuse.jpg',
+							// '/static/hair/cc_hair/Hair_opacity.jpg',
+							
+							// onLoad callback
+							function ( texture ) {
+								// in this example we create the material when the texture is loaded
+								// const material = new THREE.MeshBasicMaterial( {
+								// 	map: texture,
+								// } );
+
+								const material = new THREE.MeshStandardMaterial( {
+									// specular: 0x111111,
+									map: texture,
+									// specularMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/specular.jpg' ),
+									// normalMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/normal.jpg' ),
+									alphaMap: textureLoader.load('/static/hair/cc_hair/Hair_opacity.jpg'),
+									aoMap: textureLoader.load('/static/hair/cc_hair/Hair_ao.jpg'),
+									metalnessMap: textureLoader.load('/static/hair/cc_hair/Hair_metallic.jpg'),
+									metalness: 0.5,
+									// normalMap:textureLoader.load('/static/hair/cc_hair/Hair_blend.jpg'),
+									// roughnessMap: textureLoader.load( '/static/Male23/Male25Face/Face_Roughness.jpg' ),
+									roughnessMap: textureLoader.load('/static/hair/cc_hair/Hair_roughness.png'),
+									// shininess: 25
+								} );
+                                // object.children[0].material = material_scal
+								// object.children[1].material = material
+								// scene.add(hair_obj)
+								object.children[0].material = material
+							},
+
+							// onProgress callback currently not supported
+							undefined,
+
+							// onError callback
+							function ( err ) {
+								console.error( 'An error happened.' );
+							}
+						);
+						const fullhead_grp = scene.getObjectByName('fullhead');
+						// fullhead_grp.add(object)
+						// fullhead_grp.add(R_eye_obj)
+						// scene.add( object);
+						console.log(scene)
+
+
+					},
+					// called when loading is in progresses
+					function ( xhr ) {
+
+						console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+					},
+					// called when loading has errors
+					function ( error ) {
+
+						console.log( 'An error happened' );
+
+					}
+				);
+
+				console.log(scene)
+			}
+
+			async function getExpressionOBJ(){
+
+				const response = await fetch('/process_obj_for_reconstruction', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				// body: JSON.stringify(meshData),
+				});
+				const result = await response.json();
+				console.log(result)
+
+
+
+			} 
+			async function getFileFromUrl(url){
+  						const response = await fetch(url);
+  							const data = await response.blob();
+							return data
+  					// 		return new File([data], name, {
+    				// 				type: data.type || defaultType,
+  					// });
+			}
+
+			const imgUrlToBase64 = (url) => {
+					return new Promise((resolve, reject) => {
+						if (!url) {
+						reject('请传入url内容');
+						}
+
+						if (/\.(png|jpe?g|gif|svg)(\?.*)?$/.test(url)) {
+						// 图片地址
+						const image = new Image();
+						// 设置跨域问题
+						image.setAttribute('crossOrigin', 'anonymous');
+						// 图片地址
+						image.src = url;
+						image.onload = () => {
+							const canvas = document.createElement('canvas');
+							const ctx = canvas.getContext('2d');
+							canvas.width = image.width;
+							canvas.height = image.height;
+							ctx.drawImage(image, 0, 0, image.width, image.height);
+							// 获取图片后缀
+							const ext = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
+							// 转base64
+							const dataUrl = canvas.toDataURL(`image/${ext}`);
+							resolve(dataUrl || '');
+						}
+						} else {
+						// 非图片地址
+						reject('非(png/jpe?g/gif/svg等)图片地址');
+						}
+					});
+					};
+
+
+
+
+			function process_time(){
+				const progress = document.getElementById("progress");
+				let value = 0;
+				const interval = setInterval(() => {
+				value += 1;
+				progress.value = value;
+				if (value >= 100) clearInterval(interval);
+				}, 880);
+			}
+
+			let i = 0;
+
+			// '005' var texture_name = ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png', '10.png', '11.png', '12.png', '13.png', '14.png']
+			var image_name = ['000001', '001', '000002', '000003', '000004', '000005', '008', '016', '000019', '031', '039']
+			document.getElementById("btnradio1").addEventListener('click', () => {
+				if (i == 10) {
+					var y=document.getElementById("showEnd");
+    				y.innerHTML="这是最后一张示例图啦";
+					i = 0;
+				}
+				else {
+					i += 1;
+					var y=document.getElementById("showEnd");
+    				y.innerHTML="";
+				}
+				const _fileName = image_name[i]
+				// console.log(_fileName)
+                // let existingModel=null;
+                // const promise3 =  Promise.resolve();
+                // promise3.then(()=>{
+                const existingModel = scene.getObjectByName('fullhead');
+                if (existingModel){
+                    scene.remove(existingModel)
+                }
+                const eyelModel = scene.getObjectByName('L_eye_obj');
+                if (eyelModel){
+                    scene.remove(eyelModel)
+                }
+                const eyerModel = scene.getObjectByName('R_eye_obj');
+                if (eyerModel){
+                    scene.remove(eyerModel)
+                }
+
+				changeImage(_fileName);
+                // changeObj(_fileName);
+                
+                loadHeadOBJ(_fileName);     
+                loadEyeOBJ(_fileName);
+
+			});
+
+            let j=0;
+            document.getElementById("hairbtn").addEventListener('click', () => {
+				if (j == 0){
+                    hairInit('/static/models/hair_data/aligned/braids_hairstyle.obj');
+                    j += 1;
+                    var y=document.getElementById("showEndhair");
+    				y.innerHTML="";
+                }
+                else if (j == 1){
+                    hairInit('/static/models/hair_data/aligned/bun_hairstyle.obj');
+                    j += 1;
+                    var y=document.getElementById("showEndhair");
+    				y.innerHTML="";
+                }
+                else if (j == 2){
+                    hairInit('/static/models/hair_data/aligned/loose_hairstyle.obj');
+                    j += 1;
+                    var y=document.getElementById("showEndhair");
+    				y.innerHTML="这是最后一个发型啦";
+                }
+                else if (j == 3){
+                    hairInit('/static/models/hair_data/aligned/ponytail_hairstyle.obj');
+					j = 0;
+                    var y=document.getElementById("showEndhair");
+    				y.innerHTML="";
+                }
+
+			});
+
+            function changeImage(_folderName){
+
+                var current_file = '/static/gallary/inputimages/' + _folderName + '.png';
+                console.log(current_file)
+                document.getElementById('image').getElementsByTagName('img')[0].src = current_file;
+			};
+
+            function hairInit(hairfile){
+                const existingModel = scene.getObjectByName('hairmodel');
+				if (existingModel) {
+					scene.remove(existingModel);
+				}
+				const objLoader = new OBJLoader();
+                // const fbxLoader = new ArrayBufferFBXLoader(new FBXLoader());
+                const textureLoader = new THREE.TextureLoader();
+				
+				objLoader.load(
+					hairfile,
+					function (object) {
+						object.name = 'hairmodel';
+                        const diffuseMap = textureLoader.load( '/static/models/hair_data/textures/highlight_texture.png' );
+                        diffuseMap.colorSpace = THREE.SRGBColorSpace;
+                        const alphaMap = textureLoader.load( '/static/models/hair_data/textures/T_StandardWSet_Alpha.png' );
+                        alphaMap.wrapS = alphaMap.wrapY = THREE.MirroredRepeatWrapping; //RepeatWrapping 
+                        const aoMap = textureLoader.load( '/static/models/hair_data/textures/T_StandardWSet_AO.png' );
+                        const normalMap = textureLoader.load( '/static/models/hair_data/textures/T_StandardWSet_Normal.png' );
+
+                        const material = new THREE.MeshPhysicalMaterial( {
+                            // color: 0xefef00,
+                            // color: 0x614425,   // brown
+                            color: 0x4d3900,  // 咖啡色
+                            // color: 0xffffff,
+                            // specular: 0x222222,
+                            // shininess: 35,
+                            map: diffuseMap,
+                            alphaMap:  alphaMap,
+                            transparent: true,
+                            sheen: 0.5,
+                            // alphaTest: 0.5, // if transparent is false
+                            // transparent: false,
+                            aoMap: aoMap,
+                            // specularMap: specularMap,
+                            normalMap: normalMap,
+                            normalScale: new THREE.Vector2( 0.8, 0.8 )
+                        } );
+
+                        material.alphaTest = .05;
+                        material.side = THREE.DoubleSide;
+                        material.shadowside = THREE.DoubleSide;
+
+                        material.depthTest = true;
+                        material.depthFunc = THREE.LessDepth;
+                        material.depthWrite = false;
+                        material.flatShading = false;
+                        material.shininess = 6;
+                        material.skinning = true;
+
+                        object.children[0].material = material
+                        object.children[0].castShadow = true;
+                        object.children[0].receiveShadow = true;
+                        object.children[0].material.needsUpdate = true;
+
+                        scene.add(object)
+                        console.log('===========================================', object)
+                        console.log('===========================================', scene)
+                    }
+				);
+            }
+
+            function loadHeadOBJ(_folderName){
+                const loader = new OBJLoader();
+                const textureloader = new THREE.TextureLoader();
+
+                const current_file_fullhead = '/static/gallary/reconresults/' + _folderName + '/fullhead';
+                // load fullhead
+
+                loader.load(
+                    // resource URL
+                    // '/static/tmplates/test/fullhead/final_fullhead.obj',
+
+                    current_file_fullhead + '/final_fullhead.obj',
+                    // called when resource is loaded
+                    function ( object ) {
+
+                        object.name = 'fullhead'
+                        object.children[0].castShadow = true;
+                        object.children[0].receiveShadow = true;
+
+                        const promise1 = Promise.resolve(current_file_fullhead);
+                        promise1.then((value)=>{
+
+
+                        textureloader.load(
+                            // "/static/tmplates/fullheadTexture/test_01_diffuse/stage2_uv.png",
+                            current_file_fullhead + '/stage2_uv.png',
+                            // onLoad callback
+                            function ( texture ) {
+
+                                FaceSkinMaterial = new THREE.MeshPhongMaterial( {
+                                    specular: 0x111111,
+                                    map: texture,
+                                    // map: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/albedo.jpg' ),
+                                    specularMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/specular.jpg' ),
+                                    normalMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/normal.jpg' ),
+                                    //roughnessMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/roughness.jpg' ),
+                                    //shininess: 3,  // 30
+                                    //wireframe: false
+						        } );
+                                Object.assign(FaceSkinMaterial, {
+                                    updateNormalIntensity(intensity) {
+                                      this.normalScale.set(intensity, intensity);
+                                    },
+                                    updateSpecularIntensity(intensity) {
+                                      // In MeshPhysicalMaterial, 'specularIntensity' is controlled via 'metalness' and 'roughness'
+                                      this.specular.setScalar(intensity);
+                                    },
+                                    updateAlbedoContrast(contrast) {
+                                      // This function still needs a custom shader or post-processing to truly control contrast
+                                      // Below is a simple workaround that adjusts texture exposure
+                                      map.encoding = contrast > 1 ? THREE.sRGBEncoding : THREE.LinearEncoding;
+                                    }
+                                  });
+                                object.children[0].material = FaceSkinMaterial
+                            },
+
+                            // onProgress callback currently not supported
+                            undefined,
+
+                            // onError callback
+                            function ( err ) {
+                                console.error( 'An error happened.' );
+                            }
+                        );
+                        console.log("==============================")
+                            console.log(object)
+                            console.log("==============================")
+                        });
+
+                        const promise2 = Promise.resolve();
+                        promise2.then( ()=>{
+                            scene.add( object );
+                        });
+                    },
+                );
+
+            }
+           
+            function loadEyeOBJ(_folderName){
+                const loader = new OBJLoader();
+                const textureloader = new THREE.TextureLoader();
+                const current_file_eyes = '/static/gallary/reconresults/' + _folderName + '/eyes';
+
+                loader.load(
+                    // resource URL
+                    // '/static/tmplates/test/eyes/L_eye.obj',
+                    current_file_eyes + '/L_eye.obj',
+                    // called when resource is loaded
+                    function ( object ) {
+
+                        object.name = 'L_eye_obj';
+                        object.children[0].castShadow = true;
+                        object.children[0].receiveShadow = true;
+
+                        textureloader.load(
+                            // "/static/Male23-FFHQUV/Eye_assets/eyeball_uv/eye_color.png",
+                            current_file_eyes + '/eyeball_color.png',
+
+                            // onLoad callback
+                            function ( texture ) {
+                                const material = new THREE.MeshPhongMaterial( {
+                                    specular: 0x111111,
+                                    map: texture,
+                                    normalMap: textureLoader.load( '/static/Male23-FFHQUV/Eye_assets/eyeball_uv/eye_normal.png' ),
+                                    shininess: 3,  // 30
+                                    wireframe: false
+						        } );
+                                
+                                object.children[0].material = material
+                            },
+
+                            // onProgress callback currently not supported
+                            undefined,
+
+                            // onError callback
+                            function ( err ) {
+                                console.error( 'An error happened.' );
+                            }
+                        );
+
+                        scene.add(object)
+                    },
+                );
+
+                // load r_eye
+                loader.load(
+                    // resource URL
+                    // '/static/tmplates/test/eyes/R_eye.obj',
+                    current_file_eyes + '/R_eye.obj', 
+                    // called when resource is loaded
+                    function ( object ) {
+
+                        object.name = 'R_eye_obj'
+                        object.children[0].castShadow = true;
+                        object.children[0].receiveShadow = true;
+                        textureloader.load(
+                            // "/static/Male23-FFHQUV/Eye_assets/eyeball_uv/eye_color.png",/home/mt/projects/DigitalMeMagicBox-master/static/gallary/reconresults/000001/eyes/
+                            current_file_eyes + '/eyeball_color.png',
+                            // onLoad callback
+                            function ( texture ) {
+                                const material = new THREE.MeshPhongMaterial( {
+                                    specular: 0x111111,
+                                    map: texture,
+                                    // map: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/albedo.jpg' ),
+                                    // specularMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/specular.jpg' ),
+                                    normalMap: textureLoader.load( '/static/Male23-FFHQUV/Eye_assets/eyeball_uv/eye_normal.png' ),
+                                    // roughnessMap: textureLoader.load( '/static/Male23/Male25Face/Face_Roughness.jpg' ),
+                                    shininess: 3,  // 30
+                                    wireframe: false
+						        } );
+                                
+                                object.children[0].material = material
+                            },
+
+                            // onProgress callback currently not supported
+                            undefined,
+
+                            // onError callback
+                            function ( err ) {
+                                console.error( 'An error happened.' );
+                            }
+
+                        );
+                        // scene.add( object );
+
+                        // const fullhead_grp = scene.getObjectByName('fullhead');
+						// console.log('fullhead_grp_r', scene)
+						// fullhead_grp.add(object)
+                        scene.add(object)
+                    },
+                );
+            }
+
+
+            function changeObj(_folderName){
+                // load objfiles
+                const loader = new OBJLoader();
+                const textureloader = new THREE.TextureLoader();
+                const current_file_fullhead = '/static/gallary/reconresults/' + _folderName + '/fullhead';
+                const current_file_eyes = '/static/gallary/reconresults/' + _folderName + '/eyes';
+                
+                const existingModel = scene.getObjectByName('fullhead');
+				if (existingModel) {
+					scene.remove(existingModel);
+				}	
+
+                // load fullhead
+                loader.load(
+                    // resource URL
+                    // '/static/tmplates/test/fullhead/final_fullhead.obj',
+                    current_file_fullhead + '/final_fullhead.obj',
+                    // called when resource is loaded
+                    function ( object ) {
+
+                        object.name = 'fullhead'
+                        object.children[0].castShadow = true;
+                        object.children[0].receiveShadow = true;
+
+                        myMaterial = createMaterialWithMaps(current_file_fullhead + '/stage2_uv.png', '/static/Male23-FFHQUV/Female25Face/normal.jpg', '/static/Male23-FFHQUV/Female25Face/specular.jpg');
+                        object.children[0].material = myMaterial
+
+                        // textureloader.load(
+                        //     // "/static/tmplates/fullheadTexture/test_01_diffuse/stage2_uv.png",
+                        //     current_file_fullhead + '/stage2_uv.png',
+                            // onLoad callback
+                        //     function ( texture ) {
+                        //
+                        //         const material = new THREE.MeshPhysicalMaterial( {
+                        //             // specular: 0x111111,
+                        //             map: texture,
+                        //             // map: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/albedo.jpg' ),
+                        //             specularColorMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/specular.jpg' ),
+                        //             // specular: 0.8,
+                        //             normalMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/normal.jpg' ),
+                        //             roughnessMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/roughness.jpg' ),
+                        //             roughness: 1.0,
+                        //             // shininess: 3,  // 30
+                        //             wireframe: false
+                        //         } );
+                        //
+                        //
+                        //
+						//
+                        //
+                        //         object.children[0].material = material
+                        //     },
+                        //
+                        //     // onProgress callback currently not supported
+                        //     undefined,
+                        //
+                        //     // onError callback
+                        //     function ( err ) {
+                        //         console.error( 'An error happened.' );
+                        //     }
+                        // );
+
+                        scene.add( object );
+                        console.log('scene add fullhead', scene);
+                    },
+                );
+                
+                // load l_eye
+                loader.load(
+                    // resource URL
+                    // '/static/tmplates/test/eyes/L_eye.obj',
+                    current_file_eyes + '/L_eye.obj',
+                    // called when resource is loaded
+                    function ( object ) {
+
+                        object.name = 'L_eye_obj';
+                        object.children[0].castShadow = true;
+                        object.children[0].receiveShadow = true;
+
+                        textureloader.load(
+                            // "/static/Male23-FFHQUV/Eye_assets/eyeball_uv/eye_color.png",
+                            current_file_eyes + '/eyeball_color.png',
+
+                            // onLoad callback
+                            function ( texture ) {
+                                const material = new THREE.MeshPhongMaterial( {
+                                    specular: 0x111111,
+                                    map: texture,
+                                    // map: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/albedo.jpg' ),
+                                    // specularMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/specular.jpg' ),
+                                    normalMap: textureLoader.load( '/static/Male23-FFHQUV/Eye_assets/eyeball_uv/eye_normal.png' ),
+                                    // roughnessMap: textureLoader.load( '/static/Male23/Male25Face/Face_Roughness.jpg' ),
+                                    shininess: 3,  // 30
+                                    wireframe: false
+						        } );
+                                
+                                object.children[0].material = material
+                            },
+
+                            // onProgress callback currently not supported
+                            undefined,
+
+                            // onError callback
+                            function ( err ) {
+                                console.error( 'An error happened.' );
+                            }
+                        );
+                        // scene.add( object );
+
+                        const fullhead_grp = scene.getObjectByName('fullhead');
+                        // if (fullhead_grp == undefined){
+                        //     console.log('000000')
+                        //     loadOBJ(_folderName)
+                        //     console.log('123123');
+                        // }
+						console.log('fullhead_grp_l', scene)
+						fullhead_grp.add(object)
+                    },
+                );
+
+                // load r_eye
+                loader.load(
+                    // resource URL
+                    // '/static/tmplates/test/eyes/R_eye.obj',
+                    current_file_eyes + '/R_eye.obj', 
+                    // called when resource is loaded
+                    function ( object ) {
+
+                        object.name = 'R_eye_obj'
+                        object.children[0].castShadow = true;
+                        object.children[0].receiveShadow = true;
+                        textureloader.load(
+                            // "/static/Male23-FFHQUV/Eye_assets/eyeball_uv/eye_color.png",/home/mt/projects/DigitalMeMagicBox-master/static/gallary/reconresults/000001/eyes/
+                            current_file_eyes + '/eyeball_color.png',
+                            // onLoad callback
+                            function ( texture ) {
+                                const material = new THREE.MeshPhongMaterial( {
+                                    specular: 0x111111,
+                                    map: texture,
+                                    // map: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/albedo.jpg' ),
+                                    // specularMap: textureLoader.load( '/static/Male23-FFHQUV/Female25Face/specular.jpg' ),
+                                    normalMap: textureLoader.load( '/static/Male23-FFHQUV/Eye_assets/eyeball_uv/eye_normal.png' ),
+                                    // roughnessMap: textureLoader.load( '/static/Male23/Male25Face/Face_Roughness.jpg' ),
+                                    shininess: 3,  // 30
+                                    wireframe: false
+						        } );
+                                
+                                object.children[0].material = material
+                            },
+
+                            // onProgress callback currently not supported
+                            undefined,
+
+                            // onError callback
+                            function ( err ) {
+                                console.error( 'An error happened.' );
+                            }
+
+                        );
+                        // scene.add( object );
+
+                        const fullhead_grp = scene.getObjectByName('fullhead');
+						console.log('fullhead_grp_r', scene)
+						fullhead_grp.add(object)
+                    },
+                );
+            }
+
+            document.getElementById('normalIntensity').addEventListener('input', function(event) {
+              FaceSkinMaterial.updateNormalIntensity(parseFloat(event.target.value));
+            });
+
+            document.getElementById('specularIntensity').addEventListener('input', function(event) {
+              FaceSkinMaterial.updateSpecularIntensity(parseFloat(event.target.value));
+            });
+
+            document.getElementById('albedoContrast').addEventListener('input', function(event) {
+              FaceSkinMaterial.updateAlbedoContrast(parseFloat(event.target.value));
+            });
+
+
+			function changeMaterial(_folderName) {
+				mesh = scene.getObjectByName('fullhead').children[0]
+				if (mesh) {
+					mesh.material.map = textureLoader.load( '/static/templateTexture/2023-7-31/' + _folderName),
+					// mesh.material.specularMap = textureLoader.load( '/static/Male23/'+_folderName+'/Face_Specular.jpg'),
+					// mesh.material.normalMap = textureLoader.load( '/static/Male23/'+_folderName+'/Face_Normal.jpg'),
+					mesh.material.needsUpdate = true;
+					// mesh.material.roughnessMap = textureLoader.load( '/static/Male23/'+_folderName+'/Face_Roughness.jpg'),
+					console.log(mesh)
+					// console.log("Updated")
+					// updateStatsBar("您选择了"+_folderName+"材质")
+				}
+				stats.update();
+			}
+
+        </script>
+		
+
+
+	</body>
+
+	
+
+</html>
